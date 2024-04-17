@@ -1,23 +1,26 @@
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module ModuleData where
+
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv
-import Data.Text (Text)
 import qualified Data.Vector as V
 import GHC.Generics (Generic)
 
 -- Step 1: Define a model
 
 data Module = Module
-    { code :: Text
-    , fullTitle :: Text
-    , shortTitle :: Text
+    { code :: String
+    , fullTitle :: String
+    , shortTitle :: String
     , credits :: Int
-    , level :: Text
-    , aim :: Text
-    , department :: Text
-    , indicativeContent :: Text
-    , learningOutcomes :: Text
-    , assessmentCriteria :: Text
+    , level :: String
+    , aim :: String
+    , department :: String
+    , indicativeContent :: String
+    , learningOutcomes :: String
+    , assessmentCriteria :: String
     } deriving (Show, Generic)
 
 -- Step 2: Parse CSV
