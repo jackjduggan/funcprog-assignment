@@ -36,3 +36,20 @@ instance FromNamedRecord Module where
         learningOutcomes'   <- r .: "Learning_Outcomes"
         assessmentCriteria' <- r .: "Assessment_Criteria"
         return $ Module code' fullTitle' shortTitle' credits' level' aim' department' indicativeContent' learningOutcomes' assessmentCriteria'
+
+readModules :: FilePath -> IO ()
+readModules filePath = do
+    csvData <- BL.readFile filePath
+    case decodeByName csvData of
+        Left err -> putStrLn $ "Error parsing CSV: " ++ err
+        Right (_, v) -> V.forM_ v $ \m -> do
+            putStrLn $ "Code: " ++ code m ++
+                       ", Full Title: " ++ fullTitle m ++
+                       ", Short Title: " ++ shortTitle m ++
+                       ", Credits: " ++ show (credits m) ++
+                       ", Level: " ++ level m ++
+                       ", Aim: " ++ aim m ++
+                       ", Department: " ++ department m ++
+                       ", Indicative Content: " ++ indicativeContent m ++
+                       ", Learning Outcomes: " ++ learningOutcomes m ++
+                       ", Assessment Criteria: " ++ assessmentCriteria m
