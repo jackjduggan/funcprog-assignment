@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module ModuleData where
-
+module ModuleData (readModules) where
+--                  ^ exports the readModules function
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv
 import qualified Data.Vector as V

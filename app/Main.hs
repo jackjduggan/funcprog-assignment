@@ -1,6 +1,8 @@
 module Main (main) where
 
-import Lib
+import ModuleData
 
 main :: IO ()
-main = someFunc
+main = do
+    putStrLn "Reading Module Descriptors..."
+    readModules "data/Module_Descriptors.csv"

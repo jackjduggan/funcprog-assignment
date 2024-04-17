@@ -35,6 +35,11 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies :
+  - bytestring
+  - cassava
+  - vector
+  - text
 
 executables:
   fpProgAss-exe:
