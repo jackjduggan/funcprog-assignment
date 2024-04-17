@@ -46,6 +46,11 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - fpProgAss
+    - csvCheck
+    - bytestring 
+    - cassava
+    - text
+    - vector
 
 tests:
   fpProgAss-test:
