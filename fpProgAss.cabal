@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      ModuleData
   other-modules:
       Paths_fpProgAss
   autogen-modules:
@@ -35,6 +36,10 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , cassava
+    , text
+    , vector
   default-language: Haskell2010
 
 executable fpProgAss-exe
@@ -48,7 +53,11 @@ executable fpProgAss-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , cassava
     , fpProgAss
+    , text
+    , vector
   default-language: Haskell2010
 
 test-suite fpProgAss-test
