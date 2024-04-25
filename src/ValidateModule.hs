@@ -12,15 +12,14 @@ import ModuleData (Module(..), ValidatedModule(..))
 ValidateModule :: Module -> ValidatedModule
 validateModule m = ValidatedModule
     { validatedCode = validateCode (code m)
-    , -- TODO fill in the rest of the modules
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
+    , validatedFullTitle = validateFullTitle 
+    , validatedShortTitle = validateShortTitle
+    , validatedCredits = validateCredits
+    , validatedLevel = validateLevel
+    , validatedAim = validateAim
+    , validatedDepartment = validateDepartment
+    , validatedIndicativeContent = validateIndicativeContent
+    , validatedLearningOutcomes = validateLearningOutcomes
     }
 
 
@@ -28,12 +27,13 @@ validateModule m = ValidatedModule
 validateCode :: String -> Either String String
 validateCode code
     | length code < 6 || length code > 9 = Left "Code length must be between 6 and 9 characters long"
---    | TODO check first char is upper case
---    | TODO check remaining chars are all digits
+    | not (isUpper (head code)) = Left "Uppercase letter must lead code"
+    | not (all isDigit (tail code)) = Left "Code must be followed only by digits"
     | otherwise = Right code                            -- valid
 
-
 -- TODO create the rest of the validation functions
+    | 
+
 
 
 
