@@ -31,11 +31,32 @@ validateCode code
     | not (all isDigit (tail code)) = Left "Code must be followed only by digits"
     | otherwise = Right code                            -- valid
 
--- TODO create the rest of the validation functions
-    | 
+validateFullTitle :: String -> Either String String
+validateFullTitle fullTitle
+    | -- TODO each word should have first letter capitalized
+    | -- TODO must be unique in dataset
+    | otherwise = Right fullTitle
 
+validateShortTitle :: String -> Either String String
+validateShortTitle shortTitle
+    | length shortTitle > 30 = Right "Must have max of 30 characters"
+    | -- TODO should be equal to Full_Title if Full_title is 30 chars or less
+    | otherwise = Right shortTitle
 
+validateCredits :: Int -> Either String Int
+validateCredits credits
+    | -- is not equal to introductory, intermediate, advanced, postgraduate
+    | otherwise Right credits
 
+validateLevel :: String -> Either String String
+validateLevel level
+    | -- is not equal to introductory, intermediate, advanced, postgraduate
+    | otherwise 
+
+validateAim :: String -> Either String String
+validateAim aim
+    | length aim < 500 || length aim > 2000 = Left "Must have between 500 to 2000 characters inclusive"
+    | otherwise Right aim
 
 -- References:
 -- ref1: "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
