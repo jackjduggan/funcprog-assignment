@@ -58,5 +58,26 @@ validateAim aim
     | length aim < 500 || length aim > 2000 = Left "Must have between 500 to 2000 characters inclusive"
     | otherwise Right aim
 
+validateDepartment :: String -> Either String String
+validateDepartment department
+    | -- if not one of Science, C&M, ET
+    | otherwise Right department
+
+validateIndicativeContent :: String -> Either String String
+validateIndicativeContent indicativeContent
+    | -- each sentence must begin with capital letter
+    | otherwise Right indicativeContent
+
+validateLearningOutcomes :: String -> Either String String
+validateLearningOutcomes learningOutcomes
+    | -- number of outcomes dependant on module level
+    | otherwise Right learningOutcomes
+
+validateAssessmentCriteria :: String -> Either String String
+validateAssessmentCriteria assessmentCriteria
+    | -- if less than 4 categories (lines)
+    | -- if less than 1 occurence of % in each lines
+    | otherwise Right assessmentCriteria
+
 -- References:
 -- ref1: "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
