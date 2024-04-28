@@ -54,7 +54,7 @@ validateShortTitle shortTitle fullTitle
 
 validateCredits :: Int -> Either String Int
 validateCredits credits
-    -- | TODO: is not equal to introductory, intermediate, advanced, postgraduate
+    | credits <= 0 || credits > 30 || mod credits 5 /= 0 = Left "Must be > 0, max 30, multiple of 5"
     | otherwise = Right credits
 
 validateLevel :: String -> Either String String
