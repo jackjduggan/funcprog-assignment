@@ -46,10 +46,10 @@ validateFullTitle fullTitle
     isTitleCase [] = False -- Empty string automatically false
     isTitleCase (x:xs) = isUpper x && all isLower xs -- First char upper, rest lower
 
-validateShortTitle :: String -> Either String String
-validateShortTitle shortTitle
-    | length shortTitle > 30 = Right "Must have max of 30 characters"
-    -- | TODO: should be equal to Full_Title if Full_title is 30 chars or less
+validateShortTitle :: String -> String -> Either String String
+validateShortTitle shortTitle fullTitle
+    | length shortTitle > 30 = Left "Must have max of 30 characters"
+    | length fullTitle <= 30 && shortTitle /= fullTitle = Left "Must be equal to full title if full title is 30 chars or less"
     | otherwise = Right shortTitle
 
 validateCredits :: Int -> Either String Int
