@@ -59,7 +59,7 @@ validateCredits credits
 
 validateLevel :: String -> Either String String
 validateLevel level
-    -- | TODO: is not equal to introductory, intermediate, advanced, postgraduate
+    | level not (`elem` ["Introductory", "Intermediate", "Advanced", "Postgraduate"]) = Left "Level must be one of Introductory, Intermediate, Advanced, Postgraduate"
     | otherwise = Right level
 
 validateAim :: String -> Either String String
