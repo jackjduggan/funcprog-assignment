@@ -69,7 +69,7 @@ validateAim aim
 
 validateDepartment :: String -> Either String String
 validateDepartment dep
-    -- | TODO: if not one of Science, C&M, ET
+    | dep not (`elem` ["Science", "Computing and Mathematics", "Engineering Technology"]) = Left "Department must be one of Science, C&M, ET"
     | otherwise = Right dep
 
 validateIndicativeContent :: String -> Either String String
