@@ -25,7 +25,7 @@ validateModule m = ValidatedModule
     , validatedAim = validateAim (aim m)
     , validatedDepartment = validateDepartment (department m)
     , validatedIndicativeContent = validateIndicativeContent (indicativeContent m)
-    , validatedLearningOutcomes = validateLearningOutcomes (learningOutcomes m) (level m)
+    , validatedLearningOutcomes = validateLearningOutcomes (learningOutcomes m) (level m) -- forgot to add second argument
     , validatedAssessmentCriteria = validateAssessmentCriteria (assessmentCriteria m)
     }
 
@@ -38,6 +38,7 @@ validateCode code
     | not (all isDigit (tail code)) = Left "Code must be followed only by digits"
     | otherwise = Right code                            -- valid
 
+-- `Full Title` (String)
 validateFullTitle :: String -> Either String String
 validateFullTitle fullTitle
     | not (all isTitleCase wordsList) = Left "Must be in title case"
@@ -49,32 +50,38 @@ validateFullTitle fullTitle
     isTitleCase [] = False -- Empty string automatically false
     isTitleCase (x:xs) = isUpper x && all isLower xs -- First char upper, rest lower
 
+-- `Short Title` (String)
 validateShortTitle :: String -> String -> Either String String
 validateShortTitle shortTitle fullTitle
     | length shortTitle > 30 = Left "Must have max of 30 characters"
     | length fullTitle <= 30 && shortTitle /= fullTitle = Left "Must be equal to full title if full title is 30 chars or less"
     | otherwise = Right shortTitle
 
+-- `Module Credits` (Int)
 validateCredits :: Int -> Either String Int
 validateCredits credits
     | credits <= 0 || credits > 30 || mod credits 5 /= 0 = Left "Must be > 0, max 30, multiple of 5"
     | otherwise = Right credits
 
+-- `Module Level` (String)
 validateLevel :: String -> Either String String
 validateLevel level -- L-- use of notElem instead of syntactically incorrect not(elem)
     | level `notElem` ["Introductory", "Intermediate", "Advanced", "Postgraduate"] = Left "Level must be one of Introductory, Intermediate, Advanced, Postgraduate"
     | otherwise = Right level
 
+-- `Module Aim` (String)
 validateAim :: String -> Either String String
 validateAim aim
     | length aim < 500 || length aim > 2000 = Left "Must have between 500 to 2000 characters inclusive"
     | otherwise = Right aim
 
+-- `Department` (String)
 validateDepartment :: String -> Either String String
 validateDepartment dep
     | dep `notElem` ["Science", "Computing and Mathematics", "Engineering Technology"] = Left "Department must be one of Science, C&M, ET" -- once again using notElem
     | otherwise = Right dep
 
+-- `Indicative Content` (String)
 validateIndicativeContent :: String -> Either String String
 validateIndicativeContent ic
     | not (all (any isUpper) (splitIntoSentences ic)) = Left "Not all sentences contain a capital letter"
@@ -86,6 +93,7 @@ validateIndicativeContent ic
     customGroup _ '.' = False  -- Do not group if the current character is a full stop
     customGroup _ _ = True
 
+-- `Learning Outcomes` (String)
 validateLearningOutcomes :: String -> String -> Either String String -- fixed incorrect function signature
 validateLearningOutcomes lo level
     | level == "Introductory" || level == "Intermediate" && length lo < 5 = Left "At least 5 Learning Outcomes needed"
@@ -93,6 +101,7 @@ validateLearningOutcomes lo level
     | level == "Postgraduate" && length lo < 8 = Left "At least 8 Learning Outcomes needed"
     | otherwise = Right lo
 
+-- `Assessment Criteria` (String)
 validateAssessmentCriteria :: String -> Either String String
 validateAssessmentCriteria ac
     | length (lines ac) < 4 = Left "Must have at least 4 categories" -- used lines funtion (ref5) - thought I could maybe use this for Indicative Content but this relies on terminating \n characters
@@ -102,19 +111,19 @@ validateAssessmentCriteria ac
 -- Step 5: write a function/s that can create two collections of validated modules
 -- this functions checks if all fields of a ValidatedModule are Right and returns a boolean
 isFullyValidated :: ValidatedModule -> Bool
-isFullyValidated valMod =
+isFullyValidated vm =
     all isRight [
-        validatedCode valMod,
-        validatedFullTitle valMod,
-        validatedShortTitle valMod,
-        -- validatedCredits valMod, -- had a type mismatch where the type from validatedCredits int was not matching expected Either String String
-        validatedLevel valMod,
-        validatedAim valMod,
-        validatedDepartment valMod,
-        validatedIndicativeContent valMod,
-        validatedLearningOutcomes valMod,
-        validatedAssessmentCriteria valMod
-    ] && isRight (validatedCredits valMod) -- checking validatedCredits separately
+        validatedCode vm,
+        validatedFullTitle vm,
+        validatedShortTitle vm,
+        -- validatedCredits vm, -- had a type mismatch where the type from validatedCredits int was not matching expected Either String String
+        validatedLevel vm,
+        validatedAim vm,
+        validatedDepartment vm,
+        validatedIndicativeContent vm,
+        validatedLearningOutcomes vm,
+        validatedAssessmentCriteria vm
+    ] && isRight (validatedCredits vm) -- checking validatedCredits separately
 
 -- Step 6: Generate Documents
 -- Generate Markdown file taken from lab code (books)
@@ -193,7 +202,6 @@ processModules filePath = do
 -- References:
 -- ref1: "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
 -- ref2: https://hackage.haskell.org/package/Cassava-0.5.1.0/docs/Data-Csv.html
--- ref3: https://hackage.haskell.org/package/bytestring-0.12.1.0/docs/Data-ByteString.html#g:3
 -- ref4: "This code with groupBy from Data.List..." https://codereview.stackexchange.com/questions/6992/approach-to-string-split-by-character-in-haskell
 -- ref5: https://hackage.haskell.org/package/base-4.19.1.0/docs/Prelude.html#v:lines
 -- ref6: https://chat.openai.com/share/85470ab5-4e35-4983-8130-f2f81497f5e5

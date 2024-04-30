@@ -9,5 +9,5 @@ import qualified Data.Vector as V
 main :: IO ()
 main = do
     putStrLn "Reading Module Descriptors..."
-
     processModules "data/Module_Descriptors.csv"
+    putStrLn "Modules Processed..."
