@@ -16,14 +16,15 @@ import qualified Data.Vector as V
 validateModule :: Module -> ValidatedModule
 validateModule m = ValidatedModule
     { validatedCode = validateCode (code m)
-    , validatedFullTitle = validateFullTitle 
-    , validatedShortTitle = validateShortTitle
-    , validatedCredits = validateCredits
-    , validatedLevel = validateLevel
-    , validatedAim = validateAim
-    , validatedDepartment = validateDepartment
-    , validatedIndicativeContent = validateIndicativeContent
-    , validatedLearningOutcomes = validateLearningOutcomes
+    , validatedFullTitle = validateFullTitle (fullTitle m)
+    , validatedShortTitle = validateShortTitle (shortTitle m)
+    , validatedCredits = validateCredits (credits m)
+    , validatedLevel = validateLevel (level m)
+    , validatedAim = validateAim (aim m)
+    , validatedDepartment = validateDepartment (department m)
+    , validatedIndicativeContent = validateIndicativeContent (indicativeContent m)
+    , validatedLearningOutcomes = validateLearningOutcomes (learningOutcomes m)
+    , validatedAssessmentCriteria = validateAssessmentCriteria (assessmentCriteria m)
     }
 
 
@@ -84,14 +85,16 @@ validateIndicativeContent ic
     customGroup _ _ = True
 
 validateLearningOutcomes :: String -> Either String String
-validateLearningOutcomes lo
-    -- | TODO: number of outcomes dependant on module level
+validateLearningOutcomes level lo
+    | level == "Introductory" || level == "Intermediate" && length outcomes < 5 = Left "At least 5 Learning Outcomes needed"
+    | level == "Advanced" && length outcomes < 7 = Left "At least 7 Learning Outcomes needed"
+    | level == "Postgraduate" && length outcomes < 8 = Left "At least 8 Learning Outcomes needed"
     | otherwise = Right lo
 
 validateAssessmentCriteria :: String -> Either String String
 validateAssessmentCriteria ac
-    -- | TODO: if less than 4 categories (lines)
-    -- | TODO: if less than 1 occurence of % in each lines
+    | length (lines ac) < 4 = Left "Must have at least 4 categories" -- used lines funtion (ref5) - thought I could maybe use this for Indicative Content but this relies on terminating \n characters
+    | any (not . isInfixOf "%") (lines ac) = Left "Each category must contain a '%' character" -- iSInFixOf checks if one string is contained within another.
     | otherwise = Right ac
 
 
@@ -103,3 +106,4 @@ validateAssessmentCriteria ac
 -- ref2: https://hackage.haskell.org/package/Cassava-0.5.1.0/docs/Data-Csv.html
 -- ref3: https://hackage.haskell.org/package/bytestring-0.12.1.0/docs/Data-ByteString.html#g:3
 -- ref4: "This code with groupBy from Data.List..." https://codereview.stackexchange.com/questions/6992/approach-to-string-split-by-character-in-haskell
+-- ref5: https://hackage.haskell.org/package/base-4.19.1.0/docs/Prelude.html#v:lines
