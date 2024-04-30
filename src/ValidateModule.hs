@@ -74,8 +74,14 @@ validateDepartment dep
 
 validateIndicativeContent :: String -> Either String String
 validateIndicativeContent ic
-    -- | TODO: each sentence must begin with capital
+    | not (all (any isUpper) (splitIntoSentences ic)) = Left "Not all sentences contain a capital letter"
     | otherwise = Right ic
+  where
+    splitIntoSentences :: String -> [String]
+    splitIntoSentences text = filter (not . null) $ map (filter (/= '.')) $ groupBy customGroup text -- using the GroupBy function (ref4)
+    customGroup :: Char -> Char -> Bool
+    customGroup _ '.' = False  -- Do not group if the current character is a full stop
+    customGroup _ _ = True
 
 validateLearningOutcomes :: String -> Either String String
 validateLearningOutcomes lo
@@ -96,3 +102,4 @@ validateAssessmentCriteria ac
 -- ref1: "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
 -- ref2: https://hackage.haskell.org/package/Cassava-0.5.1.0/docs/Data-Csv.html
 -- ref3: https://hackage.haskell.org/package/bytestring-0.12.1.0/docs/Data-ByteString.html#g:3
+-- ref4: "This code with groupBy from Data.List..." https://codereview.stackexchange.com/questions/6992/approach-to-string-split-by-character-in-haskell
