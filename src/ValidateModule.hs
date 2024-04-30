@@ -1,4 +1,4 @@
-module ValidateModule (processModules) where
+module ValidateModule (processModules, generateMarkdown) where
 
 import ModuleData (Module(..), ValidatedModule(..))
 --                        ^ import not just the type,
@@ -6,6 +6,8 @@ import ModuleData (Module(..), ValidatedModule(..))
 import qualified Data.ByteString.Lazy as BL
 import Data.Csv
 import Data.Char (isUpper, isDigit, isLower)
+import Data.Either (isRight, isLeft)
+import Data.List (groupBy, isInfixOf, partition) -- error #1 fixed
 import qualified Data.Vector as V
 
 -- Step 4: Define the validation function
@@ -16,14 +18,14 @@ import qualified Data.Vector as V
 validateModule :: Module -> ValidatedModule
 validateModule m = ValidatedModule
     { validatedCode = validateCode (code m)
-    , validatedFullTitle = validateFullTitle (fullTitle m)
-    , validatedShortTitle = validateShortTitle (shortTitle m)
+    , validatedFullTitle = validateFullTitle (fullTitle m) -- added remaining calls
+    , validatedShortTitle = validateShortTitle (shortTitle m) (fullTitle m) -- forgot to add second argument
     , validatedCredits = validateCredits (credits m)
     , validatedLevel = validateLevel (level m)
     , validatedAim = validateAim (aim m)
     , validatedDepartment = validateDepartment (department m)
     , validatedIndicativeContent = validateIndicativeContent (indicativeContent m)
-    , validatedLearningOutcomes = validateLearningOutcomes (learningOutcomes m)
+    , validatedLearningOutcomes = validateLearningOutcomes (learningOutcomes m) (level m)
     , validatedAssessmentCriteria = validateAssessmentCriteria (assessmentCriteria m)
     }
 
@@ -59,8 +61,8 @@ validateCredits credits
     | otherwise = Right credits
 
 validateLevel :: String -> Either String String
-validateLevel level
-    | level not (`elem` ["Introductory", "Intermediate", "Advanced", "Postgraduate"]) = Left "Level must be one of Introductory, Intermediate, Advanced, Postgraduate"
+validateLevel level -- L-- use of notElem instead of syntactically incorrect not(elem)
+    | level `notElem` ["Introductory", "Intermediate", "Advanced", "Postgraduate"] = Left "Level must be one of Introductory, Intermediate, Advanced, Postgraduate"
     | otherwise = Right level
 
 validateAim :: String -> Either String String
@@ -70,7 +72,7 @@ validateAim aim
 
 validateDepartment :: String -> Either String String
 validateDepartment dep
-    | dep not (`elem` ["Science", "Computing and Mathematics", "Engineering Technology"]) = Left "Department must be one of Science, C&M, ET"
+    | dep `notElem` ["Science", "Computing and Mathematics", "Engineering Technology"] = Left "Department must be one of Science, C&M, ET" -- once again using notElem
     | otherwise = Right dep
 
 validateIndicativeContent :: String -> Either String String
@@ -84,11 +86,11 @@ validateIndicativeContent ic
     customGroup _ '.' = False  -- Do not group if the current character is a full stop
     customGroup _ _ = True
 
-validateLearningOutcomes :: String -> Either String String
-validateLearningOutcomes level lo
-    | level == "Introductory" || level == "Intermediate" && length outcomes < 5 = Left "At least 5 Learning Outcomes needed"
-    | level == "Advanced" && length outcomes < 7 = Left "At least 7 Learning Outcomes needed"
-    | level == "Postgraduate" && length outcomes < 8 = Left "At least 8 Learning Outcomes needed"
+validateLearningOutcomes :: String -> String -> Either String String -- fixed incorrect function signature
+validateLearningOutcomes lo level
+    | level == "Introductory" || level == "Intermediate" && length lo < 5 = Left "At least 5 Learning Outcomes needed"
+    | level == "Advanced" && length lo < 7 = Left "At least 7 Learning Outcomes needed"
+    | level == "Postgraduate" && length lo < 8 = Left "At least 8 Learning Outcomes needed"
     | otherwise = Right lo
 
 validateAssessmentCriteria :: String -> Either String String
@@ -97,9 +99,96 @@ validateAssessmentCriteria ac
     | any (not . isInfixOf "%") (lines ac) = Left "Each category must contain a '%' character" -- iSInFixOf checks if one string is contained within another.
     | otherwise = Right ac
 
+-- Step 5: write a function/s that can create two collections of validated modules
+-- this functions checks if all fields of a ValidatedModule are Right and returns a boolean
+isFullyValidated :: ValidatedModule -> Bool
+isFullyValidated valMod =
+    all isRight [
+        validatedCode valMod,
+        validatedFullTitle valMod,
+        validatedShortTitle valMod,
+        -- validatedCredits valMod, -- had a type mismatch where the type from validatedCredits int was not matching expected Either String String
+        validatedLevel valMod,
+        validatedAim valMod,
+        validatedDepartment valMod,
+        validatedIndicativeContent valMod,
+        validatedLearningOutcomes valMod,
+        validatedAssessmentCriteria valMod
+    ] && isRight (validatedCredits valMod) -- checking validatedCredits separately
 
+-- Step 6: Generate Documents
+-- Generate Markdown file taken from lab code (books)
+generateMarkdown :: [ValidatedModule] -> String
+generateMarkdown validatedModules = unlines $
+    [ "# Modules"   -- a header in markdown
+    , ""
+    ] ++ map generateModule validatedModules
 
+generateModule :: ValidatedModule -> String
+generateModule vm =                         -- takes a validated module as an input
+    unlines                                 -- unlines concatenates a list of strings, separating each with a \n
+        [ "### Code:"                       -- markdown header
+        , "- " ++ case validatedCode vm of  -- case expression pattern matches the result of the field's validation
+            Right code -> code              --  if the result is Right (valid), the validated data is displayed
+            Left err -> "Error: " ++ err    -- if Left (error), the appropriate error message is displayed
+        , ""                                -- (ref6)
+        , "### Full Title:"
+        , "- " ++ case validatedFullTitle vm of
+            Right title -> title
+            Left err -> "Error: " ++ err
+        , ""
+        , "### Short Title:"
+        , "- " ++ case validatedShortTitle vm of
+            Right shortTitle -> shortTitle
+            Left err -> "Error: " ++ err
+        , ""
+        , "### Credits:"
+        , "- " ++ case validatedCredits vm of
+            Right credits -> show credits
+            Left err -> "Error: " ++ err
+        , ""
+        , "### Level:"
+        , "- " ++ case validatedLevel vm of
+            Right level -> level
+            Left err -> "Error: " ++ err
+        , ""
+        , "### Aim:"
+        , "- " ++ case validatedAim vm of
+            Right aim -> aim
+            Left err -> "Error: " ++ err
+        , ""
+        , "### Department:"
+        , "- " ++ case validatedDepartment vm of
+            Right department -> department
+            Left err -> "Error: " ++ err
+        , ""
+        , "### Indicative Content:"
+        , "- " ++ case validatedIndicativeContent vm of
+            Right content -> content
+            Left err -> "Error: " ++ err
+        , ""
+        , "### Learning Outcomes:"
+        , "- " ++ case validatedLearningOutcomes vm of
+            Right outcomes -> outcomes
+            Left err -> "Error: " ++ err
+        , ""
+        , "### Assessment Criteria:"
+        , "- " ++ case validatedAssessmentCriteria vm of
+            Right criteria -> criteria
+            Left err -> "Error: " ++ err
+        , ""
+        , "---"
+        ]
 
+-- Process Modules function is called in Main.hs
+processModules :: FilePath -> IO ()
+processModules filePath = do
+    csvData <- BL.readFile filePath
+    case decodeByName csvData of
+        Left err -> putStrLn $ "Error parsing CSV: " ++ err
+        Right (_, modules) -> do
+            let validatedModules = map validateModule (V.toList modules)
+            writeFile "modules2.md" (generateMarkdown validatedModules) -- all the modules, with error messages where data is invalid.
 
 -- References:
 -- ref1: "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
@@ -107,3 +196,4 @@ validateAssessmentCriteria ac
 -- ref3: https://hackage.haskell.org/package/bytestring-0.12.1.0/docs/Data-ByteString.html#g:3
 -- ref4: "This code with groupBy from Data.List..." https://codereview.stackexchange.com/questions/6992/approach-to-string-split-by-character-in-haskell
 -- ref5: https://hackage.haskell.org/package/base-4.19.1.0/docs/Prelude.html#v:lines
+-- ref6: https://chat.openai.com/share/85470ab5-4e35-4983-8130-f2f81497f5e5
