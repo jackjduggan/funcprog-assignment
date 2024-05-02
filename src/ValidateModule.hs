@@ -127,11 +127,11 @@ isFullyValidated vm =
 
 -- Step 6: Generate Documents
 -- Generate Markdown file taken from lab code (books)
-generateMarkdown :: [ValidatedModule] -> String
-generateMarkdown validatedModules = unlines $
+generateMarkdown :: [ValidatedModule] -> Bool -> String
+generateMarkdown validatedModules includeErrors  = unlines $
     [ "# Modules"   -- a header in markdown
     , ""
-    ] ++ map generateModule validatedModules
+    ] ++ map generateModule (if includeErrors then validatedModules else filter isFullyValidated validatedModules)
 
 generateModule :: ValidatedModule -> String
 generateModule vm =                         -- takes a validated module as an input
@@ -197,7 +197,8 @@ processModules filePath = do
         Left err -> putStrLn $ "Error parsing CSV: " ++ err
         Right (_, modules) -> do
             let validatedModules = map validateModule (V.toList modules)
-            writeFile "modules2.md" (generateMarkdown validatedModules) -- all the modules, with error messages where data is invalid.
+            writeFile "validated_with_errors.md" (generateMarkdown validatedModules True)
+            writeFile "validated_no_errors.md" (generateMarkdown validatedModules False) -- all the modules, with error messages where data is invalid.
 
 -- References:
 -- ref1: "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
