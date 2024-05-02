@@ -1,11 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module ModuleData (readModules) where
+module ModuleData (Module(..), ValidatedModule(..)) where
 --                  ^ exports the readModules function
-import qualified Data.ByteString.Lazy as BL
-import Data.Csv
-import qualified Data.Vector as V
+--                  ^ also export the datatypes
+import Data.Csv(FromNamedRecord, parseNamedRecord, (.:))
 import GHC.Generics (Generic)
 
 -- Step 1: Define a model
@@ -25,9 +24,9 @@ data Module = Module
 
 -- Step 2: Parse CSV
 
--- Define FromNamedRecord instance for Student
+-- this is needed for decodeByName in the validateModule.hs file
 instance FromNamedRecord Module where
-    parseNamedRecord r = do
+    parseNamedRecord r = do -- this syntax came from the CSVcheck code
         code'               <- r .: "Code"
         fullTitle'          <- r .: "Full_Title"
         shortTitle'         <- r .: "Short_Title"
@@ -40,19 +39,19 @@ instance FromNamedRecord Module where
         assessmentCriteria' <- r .: "Assessment_Criteria"
         return $ Module code' fullTitle' shortTitle' credits' level' aim' department' indicativeContent' learningOutcomes' assessmentCriteria'
 
-readModules :: FilePath -> IO ()
-readModules filePath = do
-    csvData <- BL.readFile filePath
-    case decodeByName csvData of
-        Left err -> putStrLn $ "Error parsing CSV: " ++ err
-        Right (_, v) -> V.forM_ v $ \m -> do
-            putStrLn $ "Code: " ++ code m ++
-                       ", Full Title: " ++ fullTitle m ++
-                       ", Short Title: " ++ shortTitle m ++
-                       ", Credits: " ++ show (credits m) ++
-                       ", Level: " ++ level m ++
-                       ", Aim: " ++ aim m ++
-                       ", Department: " ++ department m ++
-                       ", Indicative Content: " ++ indicativeContent m ++
-                       ", Learning Outcomes: " ++ learningOutcomes m ++
-                       ", Assessment Criteria: " ++ assessmentCriteria m
+-- Step 3: Define a second datatype
+-- uses Either type (notes 9:13)
+data ValidatedModule = ValidatedModule
+    -- Left (Either String) = Error, Right = Valid
+    { validatedCode :: Either String String
+    , validatedFullTitle :: Either String String
+    , validatedShortTitle :: Either String String
+    , validatedCredits :: Either String Int
+    , validatedLevel :: Either String String
+    , validatedAim :: Either String String
+    , validatedDepartment :: Either String String
+    , validatedIndicativeContent :: Either String String
+    , validatedLearningOutcomes :: Either String String
+    , validatedAssessmentCriteria :: Either String String
+    }
+

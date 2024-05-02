@@ -1,6 +1,6 @@
 module Main (main) where
 
-import ModuleData (readModules, ValidatedModule)
+import ModuleData (ValidatedModule)
 import ValidateModule (processModules, generateMarkdown)
 import Data.Csv (decodeByName, FromNamedRecord, Header)
 import qualified Data.ByteString.Lazy as BL

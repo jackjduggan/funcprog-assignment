@@ -3,7 +3,7 @@ module ValidateModule (processModules, generateMarkdown) where
 import ModuleData (Module(..), ValidatedModule(..))
 --                        ^ import not just the type,
 --                       but also all its constructors (ref1)
-import qualified Data.ByteString.Lazy as BL
+import qualified Data.ByteString.Lazy as BL -- module for reading CSV files
 import Data.Csv
 import Data.Char (isUpper, isDigit, isLower)
 import Data.Either (isRight, isLeft)
@@ -109,6 +109,21 @@ validateAssessmentCriteria ac
     | otherwise = Right ac
 
 -- Step 5: write a function/s that can create two collections of validated modules
+
+-- Process Modules function is called in Main.hs
+-- This function reads the csv file using BL.readfile (lazy bytestring)
+-- Two collections of validated modules are created by filtering modules when generating the markdown files, but they are
+--  not separated into their own structures, being created 'on-the-fly' instead.
+processModules :: FilePath -> IO ()
+processModules filePath = do
+    csvData <- BL.readFile filePath
+    case decodeByName csvData of -- decodeByName used to convert the CSV data into a list of Module objects
+        Left err -> putStrLn $ "Error parsing CSV: " ++ err
+        Right (_, modules) -> do
+            let validatedModules = map validateModule (V.toList modules) -- each module is validated, producing a list of ValidatedModule objects.
+            writeFile "validated_with_errors.md" (generateMarkdown validatedModules True) -- all modules with error messages for invalid fields
+            writeFile "validated_no_errors.md" (generateMarkdown validatedModules False) -- only modules that pass all validation checks.
+
 -- this functions checks if all fields of a ValidatedModule are Right and returns a boolean
 isFullyValidated :: ValidatedModule -> Bool
 isFullyValidated vm =
@@ -126,13 +141,18 @@ isFullyValidated vm =
     ] && isRight (validatedCredits vm) -- checking validatedCredits separately
 
 -- Step 6: Generate Documents
+
 -- Generate Markdown file taken from lab code (books)
+-- This function generates the markdown header and the markdown string based on
+--  the input modules and the includeErrors parameter.
 generateMarkdown :: [ValidatedModule] -> Bool -> String
 generateMarkdown validatedModules includeErrors  = unlines $
     [ "# Modules"   -- a header in markdown
     , ""
     ] ++ map generateModule (if includeErrors then validatedModules else filter isFullyValidated validatedModules)
 
+-- This function converts a single `ValidatedModule` into its markdown representation,
+--  displaying either the valid value or appropriate error based on validation status.
 generateModule :: ValidatedModule -> String
 generateModule vm =                         -- takes a validated module as an input
     unlines                                 -- unlines concatenates a list of strings, separating each with a \n
@@ -188,17 +208,6 @@ generateModule vm =                         -- takes a validated module as an in
         , ""
         , "---"
         ]
-
--- Process Modules function is called in Main.hs
-processModules :: FilePath -> IO ()
-processModules filePath = do
-    csvData <- BL.readFile filePath
-    case decodeByName csvData of
-        Left err -> putStrLn $ "Error parsing CSV: " ++ err
-        Right (_, modules) -> do
-            let validatedModules = map validateModule (V.toList modules)
-            writeFile "validated_with_errors.md" (generateMarkdown validatedModules True)
-            writeFile "validated_no_errors.md" (generateMarkdown validatedModules False) -- all the modules, with error messages where data is invalid.
 
 -- References:
 -- ref1: "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
