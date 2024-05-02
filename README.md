@@ -6,7 +6,7 @@
 - Using vectors to handle large data, in this case a bunch of Module descriptors.
 - Generating markdown programatically.. I had never done something like this on such a scale.
 - Found the Stack error messages to often be helpful when it came to solving errors, with it even regularly suggesting fixes.
-- Suggested plan of action was followed as best as possible.
+- Suggested plan of action was followed as best as possible, but variations were made, mainly regarding the way the collections are created (or aren't) and markdown generated.
 - Brief project description is as follows: A CSV file is read and parsed into `Module` objects. Each module is validated field-by-field, producing a `ValidatedModule` that either contains valid data or the appropriate error message explaining the invalidity. Two markdown files are then generated, one with all the modules (including those with errors), and one with only the fully validated modules.
 
 3. **Main Difficulties That You Came Across**
@@ -24,6 +24,7 @@
 5. **Reference to any material outside of notes used**
 - ref "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
 - ref https://hackage.haskell.org/package/Cassava-0.5.1.0/docs/Data-Csv.html
+- ref https://hackage.haskell.org/package/base-4.19.1.0/docs/Data-Either.html
 - ref "This code with groupBy from Data.List..." https://codereview.stackexchange.com/questions/6992/approach-to-string-split-by-character-in-haskell
 - ref https://hackage.haskell.org/package/base-4.19.1.0/docs/Prelude.html#v:lines
 - ref https://chat.openai.com/share/85470ab5-4e35-4983-8130-f2f81497f5e5

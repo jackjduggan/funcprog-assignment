@@ -212,6 +212,7 @@ generateModule vm =                         -- takes a validated module as an in
 -- References:
 -- ref1: "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
 -- ref2: https://hackage.haskell.org/package/Cassava-0.5.1.0/docs/Data-Csv.html
+-- ref3: https://hackage.haskell.org/package/base-4.19.1.0/docs/Data-Either.html
 -- ref4: "This code with groupBy from Data.List..." https://codereview.stackexchange.com/questions/6992/approach-to-string-split-by-character-in-haskell
 -- ref5: https://hackage.haskell.org/package/base-4.19.1.0/docs/Prelude.html#v:lines
 -- ref6: https://chat.openai.com/share/85470ab5-4e35-4983-8130-f2f81497f5e5
