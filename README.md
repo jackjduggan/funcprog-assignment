@@ -1,7 +1,7 @@
 1. **Student Name:** Jack Duggan
 
 2. **Main Learnings of Project**
-- I found the use of the Either type to handle errors (Left, Right) to be a very interesting way of doing such error handling.
+- I found the use of the `Either` type to handle errors (`Left`, `Right`) to be a very interesting way of doing such error handling.
 - Seeing techniques of parsing CSV data into objects that are well structured.
 - Using vectors to handle large data, in this case a bunch of Module descriptors.
 - Generating markdown programatically.. I had never done something like this on such a scale.
@@ -14,7 +14,7 @@
 - A couple of aspects required some trial and error to get working, generally related to syntax.
 - Tried following the suggested plan of action regarding the generation of 2 CSV files (valid/invalid) from which to generate markdown files. I spent a while at this, using toNamedRecord and other, but ultimately scrapped it. 
 - ValidateIndicativeContent required a check that *each sentence should start with a capital letter*. I struggled to figure out a way to divide a string into sentences, with Google being no help. Eventually though about doing some of splitting using a full stop as a delimeter, since every sentence should have a full stop. Used a helper function *splitIntoSentences* to split the string into sentences based on occurrence of a full stop/period, with help from a StackExchange article. The *customGroup* helper function then determines how to group characters into these sentences, with False returning if the current character is a full stop, breaking the grouping and marking the end of the sentences.
-- When writing the isFullyValidated function, I encountered an error within the isRight check where the type from validatedCredits *int* was not matching expected *Either String String*. After a bit of hardship trying to resolve this, I added a second isRight 'check' afterwards that handled the validatedCredits separately. This appeared to work.
+- When writing the *isFullyValidated* function, I encountered an error within the *isRight* check where the type from validatedCredits *int* was not matching expected *Either String String*. After a bit of hardship trying to resolve this, I added a second isRight 'check' afterwards that handled the validatedCredits separately. This appeared to work.
 - Writing the validations was generally difficult, and I didn't end up implementing all of them. I feel some of them may not be implemented correctly as I didn't thoroughly test them.
 
 4. **Any extra functionalities not mentioned in the spec that you implemented**
