@@ -7,6 +7,7 @@
 - Generating markdown programatically.. I had never done something like this on such a scale.
 - Found the Stack error messages to often be helpful when it came to solving errors, with it even regularly suggesting fixes.
 - Suggested plan of action was followed as best as possible.
+- Brief project description is as follows: A CSV file is read and parsed into `Module` objects. Each module is validated field-by-field, producing a `ValidatedModule` that either contains valid data or the appropriate error message explaining the invalidity. Two markdown files are then generated, one with all the modules (including those with errors), and one with only the fully validated modules.
 
 3. **Main Difficulties That You Came Across**
 - At first I was having difficulty grasping the point of the Either type, but once it clicked it made good sense.
@@ -18,6 +19,7 @@
 
 4. **Any extra functionalities not mentioned in the spec that you implemented**
 - The suggested plan of action mentioned creating two CSV files and generating markdown files from them. As mentioned above I had problems with the CSV generation, and as such generated the markdown directly.
+- As well as above, the two collections of validated modules weren't created explicitly, but rather 'on-the-fly' in the markdown generation step.
 
 5. **Reference to any material outside of notes used**
 - ref "By doing Shape(..), we exported all the value constructors for Shape" https://learnyouahaskell.com/making-our-own-types-and-typeclasses
