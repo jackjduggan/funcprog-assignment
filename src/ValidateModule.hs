@@ -6,8 +6,8 @@ import ModuleData (Module(..), ValidatedModule(..))
 import qualified Data.ByteString.Lazy as BL -- module for reading CSV files
 import Data.Csv
 import Data.Char (isUpper, isDigit, isLower)
-import Data.Either (isRight, isLeft)
-import Data.List (groupBy, isInfixOf, partition) -- error #1 fixed
+import Data.Either (isRight)
+import Data.List (groupBy, isInfixOf)
 import qualified Data.Vector as V
 
 -- Step 4: Define the validation function
@@ -32,48 +32,48 @@ validateModule m = ValidatedModule
 
 -- `Module code` (String)
 validateCode :: String -> Either String String
-validateCode code
-    | length code < 6 || length code > 9 = Left "Code length must be between 6 and 9 characters long"
-    | not (isUpper (head code)) = Left "Uppercase letter must lead code"
-    | not (all isDigit (tail code)) = Left "Code must be followed only by digits"
-    | otherwise = Right code                            -- valid
+validateCode moduleCode
+    | length moduleCode < 6 || length moduleCode > 9 = Left "Code length must be between 6 and 9 characters long"
+    | not (isUpper (head moduleCode)) = Left "Uppercase letter must lead code"
+    | not (all isDigit (tail moduleCode)) = Left "Code must be followed only by digits"
+    | otherwise = Right moduleCode                            -- valid
 
 -- `Full Title` (String)
 validateFullTitle :: String -> Either String String
-validateFullTitle fullTitle
+validateFullTitle title
     | not (all isTitleCase wordsList) = Left "Must be in title case"
     -- | TODO: handle uniqueness
-    | otherwise = Right fullTitle
+    | otherwise = Right title
   where
-    wordsList = words fullTitle
+    wordsList = words title
     isTitleCase :: String -> Bool
     isTitleCase [] = False -- Empty string automatically false
     isTitleCase (x:xs) = isUpper x && all isLower xs -- First char upper, rest lower
 
 -- `Short Title` (String)
 validateShortTitle :: String -> String -> Either String String
-validateShortTitle shortTitle fullTitle
-    | length shortTitle > 30 = Left "Must have max of 30 characters"
-    | length fullTitle <= 30 && shortTitle /= fullTitle = Left "Must be equal to full title if full title is 30 chars or less"
-    | otherwise = Right shortTitle
+validateShortTitle sTitle fTitle
+    | length sTitle > 30 = Left "Must have max of 30 characters"
+    | length fTitle <= 30 && sTitle /= fTitle = Left "Must be equal to full title if full title is 30 chars or less"
+    | otherwise = Right sTitle
 
 -- `Module Credits` (Int)
 validateCredits :: Int -> Either String Int
-validateCredits credits
-    | credits <= 0 || credits > 30 || mod credits 5 /= 0 = Left "Must be > 0, max 30, multiple of 5"
-    | otherwise = Right credits
+validateCredits moduleCredits
+    | moduleCredits <= 0 || moduleCredits > 30 || mod moduleCredits 5 /= 0 = Left "Must be > 0, max 30, multiple of 5"
+    | otherwise = Right moduleCredits
 
 -- `Module Level` (String)
 validateLevel :: String -> Either String String
-validateLevel level -- L-- use of notElem instead of syntactically incorrect not(elem)
-    | level `notElem` ["Introductory", "Intermediate", "Advanced", "Postgraduate"] = Left "Level must be one of Introductory, Intermediate, Advanced, Postgraduate"
-    | otherwise = Right level
+validateLevel moduleLevel -- L-- use of notElem instead of syntactically incorrect not(elem)
+    | moduleLevel `notElem` ["Introductory", "Intermediate", "Advanced", "Postgraduate"] = Left "Level must be one of Introductory, Intermediate, Advanced, Postgraduate"
+    | otherwise = Right moduleLevel
 
 -- `Module Aim` (String)
 validateAim :: String -> Either String String
-validateAim aim
-    | length aim < 500 || length aim > 2000 = Left "Must have between 500 to 2000 characters inclusive"
-    | otherwise = Right aim
+validateAim moduleAim
+    | length moduleAim < 500 || length moduleAim > 2000 = Left "Must have between 500 to 2000 characters inclusive"
+    | otherwise = Right moduleAim
 
 -- `Department` (String)
 validateDepartment :: String -> Either String String
@@ -95,10 +95,10 @@ validateIndicativeContent ic
 
 -- `Learning Outcomes` (String)
 validateLearningOutcomes :: String -> String -> Either String String -- fixed incorrect function signature
-validateLearningOutcomes lo level
-    | level == "Introductory" || level == "Intermediate" && length lo < 5 = Left "At least 5 Learning Outcomes needed"
-    | level == "Advanced" && length lo < 7 = Left "At least 7 Learning Outcomes needed"
-    | level == "Postgraduate" && length lo < 8 = Left "At least 8 Learning Outcomes needed"
+validateLearningOutcomes lo moduleLevel
+    | moduleLevel == "Introductory" || moduleLevel == "Intermediate" && length lo < 5 = Left "At least 5 Learning Outcomes needed"
+    | moduleLevel == "Advanced" && length lo < 7 = Left "At least 7 Learning Outcomes needed"
+    | moduleLevel == "Postgraduate" && length lo < 8 = Left "At least 8 Learning Outcomes needed"
     | otherwise = Right lo
 
 -- `Assessment Criteria` (String)
@@ -158,52 +158,52 @@ generateModule vm =                         -- takes a validated module as an in
     unlines                                 -- unlines concatenates a list of strings, separating each with a \n
         [ "### Code:"                       -- markdown header
         , "- " ++ case validatedCode vm of  -- case expression pattern matches the result of the field's validation
-            Right code -> code              --  if the result is Right (valid), the validated data is displayed
+            Right validCode -> validCode               --  if the result is Right (valid), the validated data is displayed
             Left err -> "Error: " ++ err    -- if Left (error), the appropriate error message is displayed
         , ""                                -- (ref6)
         , "### Full Title:"
         , "- " ++ case validatedFullTitle vm of
-            Right title -> title
+            Right validFullTitle -> validFullTitle
             Left err -> "Error: " ++ err
         , ""
         , "### Short Title:"
         , "- " ++ case validatedShortTitle vm of
-            Right shortTitle -> shortTitle
+            Right validShortTitle -> validShortTitle
             Left err -> "Error: " ++ err
         , ""
         , "### Credits:"
         , "- " ++ case validatedCredits vm of
-            Right credits -> show credits
+            Right validCredits -> show validCredits
             Left err -> "Error: " ++ err
         , ""
         , "### Level:"
         , "- " ++ case validatedLevel vm of
-            Right level -> level
+            Right validLevel -> validLevel
             Left err -> "Error: " ++ err
         , ""
         , "### Aim:"
         , "- " ++ case validatedAim vm of
-            Right aim -> aim
+            Right validAim -> validAim
             Left err -> "Error: " ++ err
         , ""
         , "### Department:"
         , "- " ++ case validatedDepartment vm of
-            Right department -> department
+            Right validDepartment -> validDepartment
             Left err -> "Error: " ++ err
         , ""
         , "### Indicative Content:"
         , "- " ++ case validatedIndicativeContent vm of
-            Right content -> content
+            Right validContent -> validContent
             Left err -> "Error: " ++ err
         , ""
         , "### Learning Outcomes:"
         , "- " ++ case validatedLearningOutcomes vm of
-            Right outcomes -> outcomes
+            Right validOutcomes -> validOutcomes
             Left err -> "Error: " ++ err
         , ""
         , "### Assessment Criteria:"
         , "- " ++ case validatedAssessmentCriteria vm of
-            Right criteria -> criteria
+            Right validCriteria -> validCriteria
             Left err -> "Error: " ++ err
         , ""
         , "---"
