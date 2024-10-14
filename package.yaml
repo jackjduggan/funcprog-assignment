@@ -42,7 +42,6 @@ library:
   - bytestring
   - cassava
   - vector
-  - text
 
 executables:
   fpProgAss-exe:
@@ -56,7 +55,6 @@ executables:
     - fpProgAss
     - bytestring 
     - cassava
-    - text
     - vector
 
 tests:
